@@ -17,7 +17,7 @@ type Todo struct{
 type Todos []Todo
 
 
-func (todo *Todo) Create(domain string){
+func (todo *Todo) Create(){
 	session, err := mgo.Dial("localhost:27017")
         if err != nil {
                 panic(err)
@@ -27,8 +27,6 @@ func (todo *Todo) Create(domain string){
         // Optional. Switch the session to a monotonic behavior.
         session.SetMode(mgo.Monotonic, true)
 	
-	todo.Id = bson.NewObjectId()
-	todo.Uri = domain+"/todos/"+string(todo.Id.Hex())
         c := session.DB("TodoDB").C("todos")
 	err = c.Insert(todo)
         if err != nil {
@@ -61,7 +59,7 @@ func (todos Todos) List() Todos{
 }
 
 
-func (todo *Todo) Get(todo_id string){
+func (todo *Todo) Get(){
 	session, err := mgo.Dial("localhost:27017")
         if err != nil {
                 panic(err)
@@ -73,10 +71,46 @@ func (todo *Todo) Get(todo_id string){
 
        	c := session.DB("TodoDB").C("todos")
  
-        todo.Id = bson.ObjectIdHex(todo_id)
-        
         err = c.Find(bson.M{"_id": todo.Id}).One(&todo)
         if err != nil {
                 log.Fatal(err)
         }
+}
+
+func (todo *Todo) Update() {
+	session, err := mgo.Dial("localhost:27017")
+        if err != nil {
+                panic(err)
+        }
+        defer session.Close()
+
+        // Optional. Switch the session to a monotonic behavior.
+        session.SetMode(mgo.Monotonic, true)
+
+        c := session.DB("TodoDB").C("todos")
+	err = c.Update(bson.M{"_id":todo.Id}, bson.M{"$set": todo})
+	//err = c.Find(bson.M{"_id": todo.Id}).One(&todo)
+	if err != nil {
+		panic(err)
+	}
+}
+
+
+
+func (todo *Todo) Delete() {	
+	session, err := mgo.Dial("localhost:27017")
+        if err != nil {
+                panic(err)
+        }
+        defer session.Close()
+
+        // Optional. Switch the session to a monotonic behavior.
+        session.SetMode(mgo.Monotonic, true)
+
+        c := session.DB("TodoDB").C("todos")
+	err = c.RemoveId(todo.Id)
+	if err != nil {
+		panic(err)
+	}
+		
 }
