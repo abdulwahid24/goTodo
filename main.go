@@ -8,6 +8,6 @@ import (
 
 func main() {
 	router := NewRouter()
-	log.Fatal(http.ListenAndServe(":8000", corsHandler(router))) 
+	log.Fatal(http.ListenAndServe(":443", corsHandler(router))) 
 
 }
