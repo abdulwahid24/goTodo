@@ -1,1 +1,1 @@
-web: goTodo -p $PORT
+web: goTodo -p $PORT 443
