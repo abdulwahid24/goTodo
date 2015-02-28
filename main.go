@@ -9,6 +9,6 @@ import (
 
 func main() {
 	router := NewRouter()
-	log.Fatal(http.ListenAndServe(":"+os.Getenv("$PORT"), corsHandler(router))) 
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), corsHandler(router))) 
 
 }
