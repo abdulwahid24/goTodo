@@ -41,7 +41,7 @@ func TodoCreate(w http.ResponseWriter, r *http.Request){
         	panic(err)
    	}
 	todo.Id = bson.NewObjectId()
-        todo.Uri = "http://"+r.Host+"/todos/"+string(todo.Id.Hex())+"/"
+        todo.Uri = "https://"+r.Host+"/todos/"+string(todo.Id.Hex())+"/"
 	todo.Create()	
 	if err := json.NewEncoder(w).Encode(todo); err != nil {
                 panic(err)
@@ -58,7 +58,7 @@ func TodoUpdate(w http.ResponseWriter, r *http.Request){
 	}
 	
 	todo.Id = bson.ObjectIdHex(mux.Vars(r)["id"])
-        todo.Uri = "http://"+r.Host+r.URL.Path
+        todo.Uri = "https://"+r.Host+r.URL.Path
 	todo.Update()
 	if err := json.NewEncoder(w).Encode(todo); err != nil {
 		panic(err)
