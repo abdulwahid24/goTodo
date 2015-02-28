@@ -1,1 +1,1 @@
-web: goTodo -p 443
+web: goTodo
