@@ -16,19 +16,23 @@ type Todo struct{
 
 type Todos []Todo
 
-
-func (todo *Todo) Create(){
-	session, err := mgo.Dial("localhost:27017")
+func getDBCollection() (*mgo.Collection, *mgo.Session) {
+	session, err := mgo.Dial("mongodb://abdul:abdul123@ds049641.mongolab.com:49641/gotodo")
         if err != nil {
                 panic(err)
         }
-        defer session.Close()
 
         // Optional. Switch the session to a monotonic behavior.
         session.SetMode(mgo.Monotonic, true)
-	
-        c := session.DB("TodoDB").C("todos")
-	err = c.Insert(todo)
+
+        c := session.DB("gotodo").C("todos")
+	return c, session
+}
+
+func (todo *Todo) Create(){
+        c, session := getDBCollection()
+	defer session.Close()
+	err := c.Insert(todo)
         if err != nil {
                 log.Fatal(err)
         }
@@ -41,17 +45,9 @@ func (todo *Todo) Create(){
 }
 
 func (todos Todos) List() Todos{
-	session, err := mgo.Dial("localhost:27017")
-        if err != nil { 
-                panic(err)
-        }       
-        defer session.Close()
-        
-        // Optional. Switch the session to a monotonic behavior.
-        session.SetMode(mgo.Monotonic, true) 
-        
-        c := session.DB("TodoDB").C("todos")
-	err = c.Find(nil).All(&todos)
+        c, session := getDBCollection()
+	defer session.Close()
+	err := c.Find(nil).All(&todos)
         if err != nil {
                 log.Fatal(err)
         }
@@ -60,35 +56,18 @@ func (todos Todos) List() Todos{
 
 
 func (todo *Todo) Get(){
-	session, err := mgo.Dial("localhost:27017")
-        if err != nil {
-                panic(err)
-        }
-        defer session.Close()
-        
-        // Optional. Switch the session to a monotonic behavior.
-        session.SetMode(mgo.Monotonic, true)
-
-       	c := session.DB("TodoDB").C("todos")
- 
-        err = c.Find(bson.M{"_id": todo.Id}).One(&todo)
+       	c, session := getDBCollection()
+	defer session.Close()
+        err := c.Find(bson.M{"_id": todo.Id}).One(&todo)
         if err != nil {
                 log.Fatal(err)
         }
 }
 
 func (todo *Todo) Update() {
-	session, err := mgo.Dial("localhost:27017")
-        if err != nil {
-                panic(err)
-        }
-        defer session.Close()
-
-        // Optional. Switch the session to a monotonic behavior.
-        session.SetMode(mgo.Monotonic, true)
-
-        c := session.DB("TodoDB").C("todos")
-	err = c.Update(bson.M{"_id":todo.Id}, bson.M{"$set": todo})
+        c, session := getDBCollection()
+	defer session.Close()
+	err := c.Update(bson.M{"_id":todo.Id}, bson.M{"$set": todo})
 	//err = c.Find(bson.M{"_id": todo.Id}).One(&todo)
 	if err != nil {
 		panic(err)
@@ -98,17 +77,9 @@ func (todo *Todo) Update() {
 
 
 func (todo *Todo) Delete() {	
-	session, err := mgo.Dial("localhost:27017")
-        if err != nil {
-                panic(err)
-        }
-        defer session.Close()
-
-        // Optional. Switch the session to a monotonic behavior.
-        session.SetMode(mgo.Monotonic, true)
-
-        c := session.DB("TodoDB").C("todos")
-	err = c.RemoveId(todo.Id)
+        c, session := getDBCollection()
+	defer session.Close()
+	err := c.RemoveId(todo.Id)
 	if err != nil {
 		panic(err)
 	}
